@@ -1,3 +1,4 @@
+
 # coding:utf-8
 """
 作者：zhaoxingfeng	日期：2017.02.28
@@ -9,15 +10,7 @@
 """
 from __future__ import division
 import numpy as np
-
-def loadDataSet(fileName):
-    dataMat, labelMat = [], []
-    with open(fileName) as fr:
-        for line in fr.readlines():
-            lineArr = line.strip().split(',')
-            dataMat.append([float(dt) for dt in lineArr[:-1]])
-            labelMat.append(float(lineArr[-1]))
-    return np.mat(dataMat), np.mat(labelMat).T
+import pandas as pd
 
 # 根据保留多少维特征进行降维
 class PCAcomponent(object):
@@ -85,23 +78,12 @@ class PCApercent(object):
         self._fit()
         return self
 
-
-def choosePCA(func):
-    def wraper(*args):
-        if args[1] >= 1:
-            return PCAcomponent(*args)
-        else:
-            return PCApercent(*args)
-    return wraper
-
-# 采用装饰器是为了统一调用接口
-@choosePCA
-def PCA(data, param):
-    pass
-
-data, label = loadDataSet(r'iris.txt')
+df = pd.read_csv(r'iris.txt', header=None)
+data, label = df[range(len(df.columns) - 1)], df[[len(df.columns) - 1]]
+data = np.mat(data)
 print("Original dataset = {}*{}".format(data.shape[0], data.shape[1]))
-pca = PCA(data, 0.95)
+pca = PCAcomponent(data, 3)
+# pca = PCApercent(data, 0.98)
 pca.fit()
-print(pca.low_dataMat[:5])
+print(pca.low_dataMat)
 print(pca.variance_ratio)
